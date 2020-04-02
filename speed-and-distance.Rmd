@@ -1,0 +1,351 @@
+---
+title: "section4"
+author: "ariswa"
+date: "3/28/2020"
+output:
+  html_document:
+    toc: true
+    toc_depth: 3
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Case Study: Trends in World Health and Economics
+**[Video](https://courses.edx.org/courses/course-v1:HarvardX+PH125.2x+1T2020/courseware/ad1143653dd340e98114aa5d201f76d5/51b33a53fbb6471e9044703e2822174b/?child=first)**  
+RAFAEL IRIZARRY: In this section, we will
+demonstrate how relatively simple ggplot and dplyr
+code can create insightful and aesthetically pleasing
+plots that help us better understand trends in world health and economics.  
+We will use many of the techniques we have
+learned about data visualization, exploratory data analysis,
+and summarization.  
+We later augment the code somewhat to perfect the plots,
+and describe some general principles to guide data visualization.
+We're going to be using data from Gapminder.
+Hans Rosling was the co-founder of the Gapminder Foundation, an organization
+dedicated to educating the public by using data
+to dispel common myths about the so-called developing world.  
+The organization uses data to show how actual trends in health and economics
+contradict the narratives that emanate from sensationalist media
+coverage of catastrophes, tragedies, and other unfortunate events.
+As stated in the Gapminder Foundation's website,
+"Journalists and lobbyists tell dramatic stories.
+That's their job.
+They tell stories about extraordinary events and unusual people.
+The piles of dramatic stories pile up in people's minds
+into an overdramatic worldview and strong negative stress feelings.
+The world is getting worse.
+It's we versus them.
+Other people are strange.
+The population just keeps growing.
+And nobody cares."
+Hans Rosling conveyed actual data-based trends, in a dramatic way of his own,
+using effective data visualization.
+This section is based on these talks that
+exemplify this approach to education.
+"New Insights on Poverty" and "The Best Stats You've Ever Seen"
+are the title of these talks.
+Specifically, in this section, we set out
+to answer the following two questions.
+First, is it a fair characterization of today's world
+to say that it is divided into a Western rich nations,
+and the developing world in Africa, Asia, and Latin America?
+Second, has income inequality across countries
+worsened during the last 40 years?
+We're going to use data and our code to answer these questions.  
+This video corresponds to the [textbook section introducing the case study on new insights in poverty](https://rafalab.github.io/dsbook/gapminder.html#case-study-new-insights-on-poverty).  
+
+### More about Gapminder  
+______________________________________________  
+The original Gapminder TED talks are available and we encourage you to watch them.
+
+- [The Best Stats You've Ever Seen](https://www.ted.com/talks/hans_rosling_shows_the_best_stats_you_ve_ever_seen?language=en)
+- [New Insights on Poverty](https://www.ted.com/talks/hans_rosling_reveals_new_insights_on_poverty?language=en)
+
+You can also find more information and raw data (in addition to what we analyze in class) at https://www.gapminder.org/.  
+Key points
+
+- Data visualization can be used to dispel common myths and educate the public and contradict sensationalist or outdated claims and stories.
+- We will use real data to answer the following questions about world health and economics:
+- Is it still fair to consider the world as divided into the West and the developing world?
+- Has income inequality across countries worsened over the last 40 years?  
+
+## Gapminder Dataset  
+RAFAEL IRIZARRY: To learn about world health and economics,
+we will be using the Gapminder data set provided in the dslabs library.
+This dataset was put together for you, and it
+was created using a number of spreadsheets
+available from the Gapminder Foundation.  
+
+You can access the table using this code.
+We load the dslabs package, then we type data gapminder,
+and we can see that the data includes country, year, and several health
+outcomes and economics outcomes.  
+
+As done in the New Insights on Poverty video,
+we start by testing our knowledge regarding differences in child
+mortality across different countries.
+To get us started, we're going to take a quiz created
+by Hans Rosling in his video New Insights on Poverty,
+and we're going to start by testing our knowledge regarding differences
+in child mortality across different countries.  
+
+So here's a quiz.
+For each of the pairs of countries here, which country
+do you think had the highest child mortality in 2015?
+And also, which pairs do you think are most similar?
+When answering these questions without data,
+the non-European countries are typically picked
+as having higher mortality rates, Sri Lanka over Turkey,
+South Korea over Poland, and Malaysia over Russia.
+It is also common to assume that countries considered
+to be part of the developing world, Pakistan, Vietnam, Thailand, and South
+Africa, have similarly high mortality rates.  
+
+Now let's answer these questions with data.
+For example, for this first comparison, we
+can write this simple dplyr code to see that Turkey has a higher mortality
+rate than Sri Lanka.
+We can use the same code to answer each of the five questions,
+and we see that Sri Lanka has a lower mortality rate than Turkey,
+South Korea has a lower mortality rate than Poland,
+Malaysia has a lower mortality rate than Russia,
+and Pakistan is very different from Vietnam,
+and South Africa is very different from Thailand.  
+
+From here, we see that these comparisons, the European countries
+have higher rates.
+We also see that the countries from the developing world
+can have very different rates.
+It turns out that most people do worse than if they were just
+guessing, which implies that we're more than ignorant, we're misinformed.  
+
+This video corresponds to the [textbook section introducing the case study on new insights on poverty.](https://rafalab.github.io/dsbook/gapminder.html#case-study-new-insights-on-poverty)  
+
+**Key points**
+
+- A selection of world health and economics statistics from the Gapminder project can be found in the dslabs package as data(gapminder).
+- Most people have misconceptions about world health and economics, which can be addressed by considering real data.  
+
+**Codes:**
+
+```{r include = FALSE}
+# load and inspect gapminder data
+library(tidyverse)
+
+library(dslabs)
+data(gapminder)
+head(gapminder)
+```
+```{r}
+# compare infant mortality in Sri Lanka and Turkey
+gapminder_filter <- gapminder %>%
+    filter(year == 2015 & country %in% c("Sri Lanka", "Turkey")) %>%
+    select(country, infant_mortality)
+gapminder_filter
+```
+```{r echo=FALSE, results='asis'}
+library(knitr)
+kable(gapminder_filter, caption = "Tabel perbandingan")
+```  
+
+## Life Expectancy and Fertility Rates  
+RAFAEL IRIZARRY: Our misconceptions stem from the preconceived notion
+that the world is divided into two groups, the Western World, composed
+of Western Europe and North America, which
+is characterized by long lifespans and small families versus the developing
+world, Africa, Asia, and Latin America, characterized
+by short lifespans and large families.  
+
+But does the data support this dichotomous view of the world?
+The necessary data to answer this question
+is also available in our gapminder table.
+Using our newly-learned data visualization skills,
+we will be able to answer this question.  
+
+The first plot we make to see what data have to say about this worldview
+is a scatterplot of life expectancy versus fertility rates.
+Fertility rates are defined as the average number of children per woman.
+We will start by looking at data from about 50 years
+ago when, perhaps, this worldview was cemented in our minds.  
+
+We just type the simple code and we see this plot.
+Note that most points do, in fact, fall into two distinct categories, one
+with life expectancies around 70 years and three or less children per family
+and the other with life expectancies lower than 65 years
+and with more than five children per family.  
+
+Now, to confirm that indeed these countries are from the regions
+we expect, we can use color to represent continent.
+So we change the code slightly by adding the color argument,
+assigning continent to it.
+Because continent is a character, it will automatically
+assign color to each continent.  
+
+Here's the plot.
+So indeed, in 1962, the West versus developing worldview
+was grounded in some reality, but is this still the case 50 years later?
+To answer to this question, we're going to learn about faceting.
+End of transcript. Skip to the start.  
+
+This video corresponds to the [textbook section on Gapminder scatterplots](https://rafalab.github.io/dsbook/gapminder.html#scatterplots).  
+**Key points**
+
+- A prevalent worldview is that the world is divided into two groups of countries:
+- Western world: high life expectancy, low fertility rate
+- Developing world: lower life expectancy, higher fertility rate
+- Gapminder data can be used to evaluate the validity of this view.
+- A scatterplot of life expectancy versus fertility rate in 1962 suggests that this viewpoint was grounded in reality 50 years ago. Is it still the case today?  
+**Codes**
+```{r}
+# basic scatterplot of life expectancy versus fertility
+ds_theme_set()    # set plot theme
+filter(gapminder, year == 1962) %>%
+    ggplot(aes(fertility, life_expectancy)) +
+    geom_point()
+    
+# add color as continent
+filter(gapminder, year == 1962) %>%
+    ggplot(aes(fertility, life_expectancy, color = continent)) +
+    geom_point()
+
+```  
+
+## Faceting  
+RAFAEL IRIZARRY: We could easily plot the 2012
+data in the same way we did for 1962.
+But for comparison, side by side plots are preferable.
+In ggplot, we can achieve this by faceting variables.
+We stratify the data by some variable and make the same plot for each strata.  
+
+Here we are faceting by the year.
+To achieve this, we use a function facet_grid.
+This is added as a layer which automatically separates the plots.
+The function lets you facet by up to two variables
+using columns to represent one variable and rows to represent the other.
+The function expects the rows and column variables separated by a tilde.  
+
+Here's an example.
+We're going to facet by continent and year.
+So continent will be in the rows, and year will be in the columns.
+Here is the plot.
+We can see how the data has been stratified.
+We have 1962 on the left, 2012 on the right,
+and the 5 continents in each row.  
+
+```{r}
+filter(gapminder, year %in% c("1962","2012")) %>%
+  ggplot(aes(fertility, life_expectancy, col = continent)) +
+  geom_point() +
+  facet_grid(continent ~ year)
+
+```
+
+However, this is just an example and more than what we want,
+which is simply to compare in 1962 and 2012.
+In this case, there's just one variable.
+So what we do is we use the dot to let the facet function
+know that we're not using two variables but just one.
+The code looks like this.  
+```{r}
+# facet by year only
+filter(gapminder, year %in% c(1962, 2012)) %>%
+    ggplot(aes(fertility, life_expectancy, col = continent)) +
+    geom_point() +
+    facet_grid(. ~ year)
+```
+
+
+We simply type facet_grid dot-- meaning we're not using a variable
+for the rows--
+tilde year which now tells it make two columns--
+1962 and 2012.
+And here is the plot.  
+
+After we split the plot like this, it clearly
+shows that the majority of countries have moved from the developing world
+cluster to the Western world one.
+They went from having large families and short lifespans
+to having smaller families and longer lifespans.
+In 2012, the Western versus developing world view no longer makes sense.
+This is particularly clear when we compare Europe to Asia.
+Asia includes several countries that have made great improvements
+in the last 40 to 50 years.  
+
+To explore how this transformation happened through the years,
+we can make the plot for several years.
+For example, we can add 1970, 1980, 1990, and 2000 to the plot.
+Now, if we do this, we will not want all the plots on the same row.
+This is the default behavior of facet_grid.
+If we do this, the plots will become too thin,
+and we won't be able to see the data.  
+
+Instead, we might want to have the plots across different rows and columns.
+For this, we can use the facet_wrap function which permits us to do this.
+It automatically wraps the series of plots
+so that most displays has viewable dimensions.
+So the code looks like this. 
+```{r}
+# facet by year, plots wrapped onto multiple rows
+years <- c(1962, 1980, 1990, 2000, 2012)
+continents <- c("Europe", "Asia")
+gapminder %>%
+    filter(year %in% years & continent %in% continents) %>%
+    ggplot(aes(fertility, life_expectancy, col = continent)) +
+    geom_point() +
+    facet_wrap(~year)
+```
+
+
+It's very similar.
+We're adding some years.
+And then at the end, we facet_wrap instead of facet_grid.
+And now, the plot looks like this.  
+
+Now, we're only showing Asia and Europe, but the function clearly
+shows us how the Asian countries have made great improvements
+throughout the years.  
+
+Now, note that the default choice for the range of the axes
+is an important one.
+When not using facet, this range is determined
+by the data shown in the plot.
+When using facet, the range is determined
+by the data shown in all plots.
+And therefore, it's kept fixed across the plots.
+This makes comparisons across plots much easier.
+For example, in the plot we just saw, the life expectancy has increased,
+and the fertility has decreased across most countries.  
+
+We see this because the cloud of points moves up and to the left.
+This is not the case if we adjust the scales to each year separately.
+The plot looks like this.
+In this case, we have to pay special attention
+to the range to notice that the plot on the right has larger life expectancy.
+Therefore, by keeping the scales the same,
+we were able to quickly see how many of the countries
+outside of the Western world have improved
+during the last 40 to 50 years.  
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
